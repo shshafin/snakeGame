@@ -166,23 +166,53 @@
             gameInterval = setInterval(draw, 150); // Adjust the interval here for slower movement
         });
 
-        document.addEventListener('keydown', event => {
-            const key = event.key;
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
 
-            if (key === 'ArrowUp' && dy !== 1) {
-                dx = 0;
-                dy = -1;
-            } else if (key === 'ArrowDown' && dy !== -1) {
-                dx = 0;
-                dy = 1;
-            } else if (key === 'ArrowLeft' && dx !== 1) {
-                dx = -1;
-                dy = 0;
-            } else if (key === 'ArrowRight' && dx !== -1) {
-                dx = 1;
-                dy = 0;
+        let xDown = null;
+        let yDown = null;
+
+        function handleTouchStart(evt) {
+            const firstTouch = evt.touches[0];
+            xDown = firstTouch.clientX;
+            yDown = firstTouch.clientY;
+        };
+
+        function handleTouchMove(evt) {
+            if (!xDown || !yDown) {
+                return;
             }
-        });
+
+            const xUp = evt.touches[0].clientX;
+            const yUp = evt.touches[0].clientY;
+
+            const xDiff = xDown - xUp;
+            const yDiff = yDown - yUp;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                // Horizontal swipe
+                if (xDiff > 0 && dx !== 1) {
+                    dx = -1;
+                    dy = 0;
+                } else if (dx !== -1) {
+                    dx = 1;
+                    dy = 0;
+                }
+            } else {
+                // Vertical swipe
+                if (yDiff > 0 && dy !== 1) {
+                    dx = 0;
+                    dy = -1;
+                } else if (dy !== -1) {
+                    dx = 0;
+                    dy = 1;
+                }
+            }
+
+            // Reset values
+            xDown = null;
+            yDown = null;
+        };
 
         generateHeart();
         let gameInterval = setInterval(draw, 150); // Adjust the interval here for slower movement
